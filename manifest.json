@@ -1,0 +1,13 @@
+{
+  "id": "/wild-hunt-game/",
+  "name": "WILD HUNT — REALISTIC HUNTER",
+  "short_name": "WILD HUNT",
+  "description": "Реалістична 3D мисливська гра з відкритим світом, дикою природою та виживанням.",
+  "start_url": "/wild-hunt-game/",
+  "scope": "/wild-hunt-game/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#101810",
+  "theme_color": "#17251a",
+  "categories": ["games", "entertainment"]
+}
