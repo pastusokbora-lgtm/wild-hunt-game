@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d120f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <!-- JavaScript працює → клас js ховає вікно #nojs-screen (воно лишається видимим лише там, де скрипти не виконуються). -->
+  <script>document.documentElement.classList.add('js');</script>
+  <title>WILD HUNT — Realistic Hunter</title>
+  <link rel="stylesheet" href="style.css?v=10">
+  <!-- Three.js r170 і його додатки (GLTFLoader для готових GLB-моделей) з CDN jsDelivr -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- 3D-сцена -->
+    <canvas id="scene" aria-label="Ігровий світ"></canvas>
+
+    <!-- Мальований фон головного меню (поки 3D-світ ще не завантажено) -->
+    <svg id="menu-art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="art-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2f5f9e"/>
+          <stop offset="0.55" stop-color="#8fb3d6"/>
+          <stop offset="1" stop-color="#d8e2e6"/>
+        </linearGradient>
+        <radialGradient id="art-sun" cx="0.72" cy="0.2" r="0.35">
+          <stop offset="0" stop-color="#fff6dd" stop-opacity="0.95"/>
+          <stop offset="0.25" stop-color="#ffe9b8" stop-opacity="0.35"/>
+          <stop offset="1" stop-color="#ffe9b8" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="art-mist" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#dfe7ea" stop-opacity="0"/>
+          <stop offset="1" stop-color="#dfe7ea" stop-opacity="0.55"/>
+        </linearGradient>
+        <linearGradient id="art-rock" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8d8a86"/>
+          <stop offset="1" stop-color="#5d5a57"/>
+        </linearGradient>
+      </defs>
+      <rect width="1600" height="900" fill="url(#art-sky)"/>
+      <rect width="1600" height="900" fill="url(#art-sun)"/>
+      <path d="M0 520 L140 430 L230 470 L360 330 L430 380 L520 250 L600 330 L700 290 L790 360 L900 230 L980 300 L1060 260 L1180 360 L1290 300 L1400 390 L1500 340 L1600 400 L1600 900 L0 900 Z" fill="url(#art-rock)" opacity="0.9"/>
+      <path d="M360 330 L395 360 L420 352 L452 398 L430 380 Z M520 250 L548 300 L575 292 L600 330 Z M900 230 L930 280 L955 270 L980 300 Z M1060 260 L1090 300 L1120 290 L1150 330 Z" fill="#f4f6f8"/>
+      <path d="M0 600 L200 520 L330 560 L480 470 L640 540 L800 480 L960 560 L1120 500 L1280 560 L1460 500 L1600 540 L1600 900 L0 900 Z" fill="#3e5a46" opacity="0.85"/>
+      <rect y="460" width="1600" height="220" fill="url(#art-mist)"/>
+      <path d="M0 700 Q 120 640 240 690 T 480 680 T 720 700 T 960 670 T 1200 700 T 1440 680 T 1600 690 L1600 900 L0 900 Z" fill="#1f3326"/>
+      <g fill="#14231a">
+        <path d="M80 760 L110 640 L140 760 Z M150 770 L190 610 L230 770 Z M240 760 L268 660 L296 760 Z M1300 770 L1340 600 L1380 770 Z M1390 760 L1420 650 L1450 760 Z M1460 780 L1500 620 L1540 780 Z M1180 770 L1205 680 L1230 770 Z"/>
+      </g>
+      <rect y="760" width="1600" height="140" fill="#101b14"/>
+    </svg>
+
+    <!-- Шар для дотиків: джойстик (ліва нижня зона) і огляд (решта екрана) -->
+    <div id="touch-layer"></div>
+
+    <!-- Затемнення бінокля (кола малюються з game.js під розмір екрана) -->
+    <svg id="binoculars" class="hidden" aria-hidden="true">
+      <defs>
+        <mask id="binoc-mask">
+          <rect id="binoc-rect" x="0" y="0" width="100" height="100" fill="#fff"/>
+          <circle id="binoc-left" cx="40" cy="50" r="30" fill="#000"/>
+          <circle id="binoc-right" cx="60" cy="50" r="30" fill="#000"/>
+        </mask>
+      </defs>
+      <rect id="binoc-shade" x="0" y="0" width="100" height="100" fill="#050605" mask="url(#binoc-mask)"/>
+    </svg>
+
+    <!-- Оптичний приціл: чорне поле навколо окуляра і сітка -->
+    <div id="scope" class="hidden" aria-hidden="true">
+      <div id="scope-ring"></div>
+      <svg id="scope-reticle" viewBox="-100 -100 200 200">
+        <!-- Дуплекс: товсті «пеньки» й тонке перехрестя (приціл 4×32) -->
+        <g class="ret ret-duplex">
+          <line x1="-100" y1="0" x2="-14" y2="0" class="thick"/>
+          <line x1="14" y1="0" x2="100" y2="0" class="thick"/>
+          <line x1="0" y1="14" x2="0" y2="100" class="thick"/>
+          <line x1="0" y1="-100" x2="0" y2="-14" class="thick"/>
+          <line x1="-14" y1="0" x2="14" y2="0" class="thin"/>
+          <line x1="0" y1="-14" x2="0" y2="14" class="thin"/>
+        </g>
+        <!-- «Німецька №4»: три товсті «пеньки» й тонка вертикальна нитка згори (3–9×40) -->
+        <g class="ret ret-g4">
+          <line x1="-100" y1="0" x2="-18" y2="0" class="thick"/>
+          <line x1="18" y1="0" x2="100" y2="0" class="thick"/>
+          <line x1="0" y1="18" x2="0" y2="100" class="thick"/>
+          <line x1="-18" y1="0" x2="18" y2="0" class="thin"/>
+          <line x1="0" y1="-100" x2="0" y2="18" class="thin"/>
+        </g>
+        <!-- Мілдот: тонке перехрестя з точками-поділками й товсті «пеньки» біля краю (6–24×50) -->
+        <g class="ret ret-mil">
+          <line x1="-100" y1="0" x2="-60" y2="0" class="thick"/>
+          <line x1="60" y1="0" x2="100" y2="0" class="thick"/>
+          <line x1="0" y1="60" x2="0" y2="100" class="thick"/>
+          <line x1="0" y1="-100" x2="0" y2="-60" class="thick"/>
+          <line x1="-60" y1="0" x2="60" y2="0" class="hair"/>
+          <line x1="0" y1="-60" x2="0" y2="60" class="hair"/>
+          <g class="mils"><circle cx="-50" cy="0" r="1.1"/><circle cx="0" cy="-50" r="1.1"/><circle cx="-40" cy="0" r="1.1"/><circle cx="0" cy="-40" r="1.1"/><circle cx="-30" cy="0" r="1.1"/><circle cx="0" cy="-30" r="1.1"/><circle cx="-20" cy="0" r="1.1"/><circle cx="0" cy="-20" r="1.1"/><circle cx="-10" cy="0" r="1.1"/><circle cx="0" cy="-10" r="1.1"/><circle cx="10" cy="0" r="1.1"/><circle cx="0" cy="10" r="1.1"/><circle cx="20" cy="0" r="1.1"/><circle cx="0" cy="20" r="1.1"/><circle cx="30" cy="0" r="1.1"/><circle cx="0" cy="30" r="1.1"/><circle cx="40" cy="0" r="1.1"/><circle cx="0" cy="40" r="1.1"/><circle cx="50" cy="0" r="1.1"/><circle cx="0" cy="50" r="1.1"/></g>
+        </g>
+        <circle cx="0" cy="0" r="0.9" class="dot"/>
+      </svg>
+      <div id="scope-zoom">4×</div>
+    </div>
+
+    <!-- Ігровий інтерфейс -->
+    <div id="hud" class="hidden">
+      <div id="hud-top">
+        <div id="status" class="panel">
+          <div class="meter" id="stamina">
+            <span class="meter-label">Сили</span>
+            <div class="bar"><div id="stamina-fill"></div></div>
+          </div>
+          <div class="meter" id="noise">
+            <span class="meter-label">Шум</span>
+            <div class="bar"><div id="noise-fill"></div></div>
+          </div>
+          <div class="meter" id="visibility">
+            <span class="meter-label">Помітн.</span>
+            <div class="bar"><div id="visibility-fill"></div></div>
+          </div>
+        </div>
+
+        <div id="compass-wrap">
+          <div id="compass" class="panel" aria-hidden="true">
+            <div id="compass-tape"></div>
+            <div class="compass-marker"></div>
+            <div id="wind-marker" title="Звідки віє вітер"></div>
+          </div>
+          <div id="compass-info"><span id="compass-deg">0°</span> · <span id="wind-text">вітер</span></div>
+        </div>
+
+        <div id="top-right">
+          <div class="top-buttons">
+            <button id="btn-hud-map" class="icon-btn" type="button" aria-label="Карта">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5l5.5-2.5 6 2.5 5.5-2.5v13.5l-5.5 2.5-6-2.5-5.5 2.5z M9 4v13.5 M15 6.5V20"/></svg>
+            </button>
+            <button id="btn-pause" class="icon-btn" type="button" aria-label="Пауза">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1" class="fill"/><rect x="13.9" y="5" width="3.6" height="14" rx="1" class="fill"/></svg>
+            </button>
+          </div>
+          <div id="clock">07:20 · Ясно</div>
+          <div id="fps">— FPS</div>
+          <pre id="debug" class="hidden"></pre>
+        </div>
+      </div>
+
+      <div id="crosshair"><span></span></div>
+      <div id="aim-label"></div>
+      <div id="range-label" class="hidden"></div>
+      <div id="hit-label" role="status" aria-live="polite"></div>
+      <div id="toast" role="status" aria-live="polite"></div>
+
+      <div id="joystick" aria-hidden="true"><div id="joy-knob"></div></div>
+
+      <div id="actions">
+        <button id="btn-shoot" class="act-btn act-main" type="button" aria-label="Постріл">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 2.5v5 M12 16.5v5 M2.5 12h5 M16.5 12h5"/><circle cx="12" cy="12" r="1.3" class="fill"/></svg>
+          <span id="ammo-count">4/16</span>
+        </button>
+        <button id="btn-aim" class="act-btn" type="button" aria-label="Приціл" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5h3.5l1.5-2h8l1.5 2H21v3h-3.5l-1.5 2H8l-1.5-2H3z"/><circle cx="12" cy="12" r="1.6"/></svg>
+          <span>Приціл</span>
+        </button>
+        <button id="btn-run" class="act-btn" type="button" aria-label="Біг" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.5" cy="4.5" r="2.2" class="fill"/><path d="M8.5 21l2.6-5.6 3.2 2.6V21M6.5 11.5l3.2-3.1h4.2l2.2 3.8 3.1 1M11.1 15.4l2.1-6.8"/></svg>
+          <span>Біг</span>
+        </button>
+        <button id="btn-crouch" class="act-btn act-small" type="button" aria-label="Присісти" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="5" r="2.2" class="fill"/><path d="M11 8.2l-2.6 5.3h5.4l1.6 6.5M8.4 13.5l-2.6 5.7M12.2 9.6l3.8 1.8"/></svg>
+          <span>Присід</span>
+        </button>
+        <button id="btn-binoc" class="act-btn act-small" type="button" aria-label="Бінокль" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6.8" cy="15.2" r="3.8"/><circle cx="17.2" cy="15.2" r="3.8"/><path d="M10.6 14.6h2.8M4.6 11.6l1.8-5.6h3.2l1 6M19.4 11.6l-1.8-5.6h-3.2l-1 6"/></svg>
+          <span>Бінокль</span>
+        </button>
+        <button id="btn-interact" class="act-btn act-small" type="button" aria-label="Дія">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 12.2V5.8a1.5 1.5 0 0 1 3 0v5.4M11.2 10.8V4.4a1.5 1.5 0 0 1 3 0v6.4M14.2 11V6.2a1.5 1.5 0 0 1 3 0v7.6c0 4-2.6 6.8-6.1 6.8-2.6 0-4.1-1.3-5.3-3.4l-2-3.6a1.5 1.5 0 0 1 2.5-1.6l1.9 2.3"/></svg>
+          <span>Дія</span>
+        </button>
+        <button id="btn-zoom" class="act-btn act-small hidden" type="button" aria-label="Кратність прицілу">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5 M10.5 7.5v6 M7.5 10.5h6"/></svg>
+          <span id="zoom-text">4×</span>
+        </button>
+        <button id="btn-gun-reload" class="act-btn act-small" type="button" aria-label="Перезарядити">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.05-4.95 M19 4.5v3.6h-3.6"/><path d="M10.6 9.2h2.8v5.6h-2.8z" class="fill"/></svg>
+          <span>Набої</span>
+        </button>
+        <button id="btn-weapon" class="act-btn act-small" type="button" aria-label="Інша зброя" data-slot="rifle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ico-rifle" d="M2.5 13.2h13l1.4-1.6h4.6v1.8l-4 .8-1.2 3.2h-2.6l-.4-2.4H8.6l-2 3H3.4l1.4-3.4H2.5z M8 10.6h6"/><path class="ico-shotgun" d="M2 12.4h14.5l1.3-1h3.7v2.2l-3.6.6-1.6 3.6h-2.6l.1-3H8.2l-2.4 3.1H2.8l1.6-3.3H2z"/><path class="ico-knife" d="M3 15.5l10.5-6.2c2.6-1.4 5.5-1.3 7.4-.6-2.1 2.9-5.2 4.6-8.4 5.6L5 17z M12.6 14.2l1.6 2.2-1.9 1.3-1.6-2.2"/></svg>
+          <span id="weapon-text">Гвинтівка</span>
+        </button>
+      </div>
+
+      <div id="key-hints">ЛКМ / Пробіл — постріл · ПКМ / Q — приціл · Z — кратність · R — перезарядка · 1 / 2 / 3, X, коліщатко — зброя · T — огляд зброї · Shift — біг · C — присід · B — бінокль · E — дія · M — карта · Esc — пауза</div>
+    </div>
+
+    <!-- Головне меню -->
+    <div id="start-screen" class="overlay">
+      <div id="menu-scrim"></div>
+      <div class="menu-layout scroll">
+        <header class="menu-head">
+          <div class="brand">
+            <p class="kicker">Мисливський симулятор</p>
+            <h1>WILD HUNT</h1>
+            <p class="subtitle">Realistic Hunter</p>
+          </div>
+          <div class="profile-chip" id="profile-chip">
+            <div class="chip-row"><span class="coin" aria-hidden="true"></span><b id="chip-money">600</b><span class="chip-unit">монет</span></div>
+            <div class="chip-row muted"><span id="chip-level">Рівень 1</span> · <span id="chip-trophies">трофеїв: 0</span></div>
+          </div>
+        </header>
+
+        <nav class="menu-nav" aria-label="Головне меню">
+          <button id="btn-start" class="primary btn-hunt" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 2.5v5 M12 16.5v5 M2.5 12h5 M16.5 12h5"/></svg>
+            <span>Полювати</span>
+          </button>
+          <!-- Індикатор завантаження світу: з'являється після натискання «Полювати» -->
+          <div id="loading" class="hidden" role="status" aria-live="polite">
+            <div class="bar"><div id="loading-fill"></div></div>
+            <p id="loading-text">Підготовка…</p>
+          </div>
+          <div class="nav-grid">
+            <button id="btn-gear" class="nav-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7.5V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.5 M4.5 7.5h15v12a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5z M4.5 12.5h15 M10 12.5v2h4v-2"/></svg>
+              <span>Спорядження</span>
+            </button>
+            <button id="btn-shop" class="nav-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.5H6.2z M8.5 8V6.5a3.5 3.5 0 0 1 7 0V8"/></svg>
+              <span>Магазин</span>
+            </button>
+            <button id="btn-map" class="nav-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5l5.5-2.5 6 2.5 5.5-2.5v13.5l-5.5 2.5-6-2.5-5.5 2.5z M9 4v13.5 M15 6.5V20"/></svg>
+              <span>Карта</span>
+            </button>
+            <button id="btn-settings" class="nav-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg>
+              <span>Налаштування</span>
+            </button>
+          </div>
+        </nav>
+
+        <aside class="menu-info panel">
+          <p class="info-title" id="menu-location">Долина Чорного Потоку</p>
+          <p class="info-line" id="menu-conditions">Ранок · ясно · вітер слабкий</p>
+          <p class="info-line" id="menu-loadout">Карабін .243 Win · Приціл 4×32</p>
+          <p class="info-line muted" id="menu-goal">Угіддя: благородний олень, козуля, дикий кабан, бурий ведмідь.</p>
+        </aside>
+
+        <footer class="menu-help">
+          <p class="touch-help"><b>Ліворуч</b> — джойстик руху, <b>праворуч</b> — огляд пальцем. Кнопки: постріл, приціл, біг, присід, бінокль, дія.</p>
+          <p class="mouse-help"><b>WASD</b> — рух, <b>миша</b> — огляд (клацніть по сцені), <b>ЛКМ</b> — постріл, <b>ПКМ</b> — приціл, <b>Esc</b> — пауза.</p>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Вікно розділів меню: спорядження, магазин, карта, налаштування -->
+    <div id="panel-screen" class="overlay hidden">
+      <div class="panel sheet">
+        <div class="sheet-head">
+          <h2 id="panel-title">Спорядження</h2>
+          <div id="panel-money" class="sheet-money"><span class="coin" aria-hidden="true"></span><b id="panel-money-value">600</b></div>
+          <button id="btn-panel-close" class="icon-btn close-btn" type="button" aria-label="Закрити">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <div id="panel-body" class="sheet-body scroll"></div>
+      </div>
+    </div>
+
+    <!-- Пауза -->
+    <div id="pause-screen" class="overlay hidden">
+      <div class="panel menu-panel scroll">
+        <h2>Пауза</h2>
+        <p id="pause-stats" class="stats"></p>
+        <button id="btn-resume" class="primary" type="button">Продовжити</button>
+        <div class="menu-row menu-row-top">
+          <button id="btn-pause-map" class="secondary" type="button">Карта</button>
+          <button id="btn-pause-settings" class="secondary" type="button">Налаштування</button>
+        </div>
+        <div class="menu-row">
+          <button id="btn-restart" class="secondary" type="button">Почати спочатку</button>
+          <button id="btn-menu" class="secondary" type="button">Головне меню</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Картка трофея -->
+    <div id="trophy-screen" class="overlay hidden">
+      <div class="panel trophy-card scroll">
+        <p class="kicker">Трофей</p>
+        <h2 id="trophy-name">Благородний олень</h2>
+        <dl id="trophy-facts" class="facts"></dl>
+        <p id="trophy-reward" class="reward"></p>
+        <div class="menu-row">
+          <button id="btn-trophy-continue" class="primary" type="button">Продовжити полювання</button>
+          <button id="btn-trophy-menu" class="secondary" type="button">Головне меню</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Повідомлення про помилку -->
+    <div id="error-screen" class="overlay hidden">
+      <div class="panel error-panel scroll">
+        <h2 id="error-title">Не вдалося запустити гру</h2>
+        <p id="error-text"></p>
+        <ul id="error-tips"></ul>
+        <button id="btn-reload" class="primary" type="button">Спробувати ще раз</button>
+      </div>
+    </div>
+
+    <!-- Видно, лише якщо JavaScript не виконується. iPhone відкриває HTML-файл із Telegram, «Файлів» чи чату
+         в попередньому перегляді, де скрипти вимкнено: там меню — лише картинка, і кнопки не можуть працювати.
+         Скрипт у <head> додає до <html> клас js, і тоді це вікно ховається. -->
+    <div id="nojs-screen" class="overlay">
+      <div class="panel error-panel scroll">
+        <h2>Тут гра не запуститься</h2>
+        <p>Файл гри відкрито в режимі попереднього перегляду — так iPhone показує HTML-файли з Telegram, «Файлів» чи чату. У цьому режимі JavaScript не виконується, тому кнопки не реагують. Виправити це в самій грі неможливо: так працює попередній перегляд на iPhone.</p>
+        <ul>
+          <li>На iPhone відкрийте гру за посиланням https:// у Safari (наприклад, сторінка гри на GitHub Pages).</li>
+          <li>На Android файл можна відкрити в Chrome.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Підказка про орієнтацію (не блокує гру) -->
+    <div id="rotate-hint" class="hidden">
+      <span>Для кращого огляду поверніть телефон горизонтально</span>
+      <button id="btn-rotate-close" type="button" aria-label="Закрити підказку">✕</button>
+    </div>
+  </div>
+
+  <!-- Дуже старі браузери без підтримки ES Modules -->
+  <script nomodule>
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('loading-text').textContent =
+      'Ваш браузер застарів і не підтримує ES-модулі. Оновіть Chrome, Safari або Firefox.';
+  </script>
+
+  <!-- Захисний скрипт: помилки до запуску гри, локальний файл, надто довге завантаження -->
+  <script>
+    (function () {
+      var boot = window.WH_BOOT = { ready: false, failed: false, timeoutShown: false };
+      var watchdog = 0;
+
+      function show(title, text, tips) {
+        boot.failed = true;
+        var screen = document.getElementById('error-screen');
+        document.getElementById('error-title').textContent = title;
+        document.getElementById('error-text').textContent = text;
+        var list = document.getElementById('error-tips');
+        list.innerHTML = '';
+        (tips || []).forEach(function (tip) {
+          var li = document.createElement('li');
+          li.textContent = tip;
+          list.appendChild(li);
+        });
+        screen.classList.remove('hidden');
+      }
+      boot.showError = show;
+
+      document.getElementById('btn-reload').addEventListener('click', function () {
+        window.location.reload();
+      });
+
+      if (window.location.protocol === 'file:' || window.location.protocol === 'content:') {
+        show('Гру відкрито як локальний файл',
+          'Браузери блокують ES-модулі для локальних файлів (адреси file:// і content://), тому гра не може запуститися з файлу на пристрої.',
+          ['Завантажте index.html, style.css і game.js на хостинг (наприклад, GitHub Pages).',
+           'Відкрийте посилання, що починається з https://.']);
+      }
+
+      window.addEventListener('error', function (event) {
+        if (boot.ready || boot.failed) return;
+        show('Помилка під час завантаження гри',
+          (event && event.message) ? event.message : 'Невідома помилка JavaScript.',
+          ['Переконайтеся, що файли скопійовано повністю, без обрізаних рядків.',
+           'Оновіть сторінку.']);
+      });
+
+      window.addEventListener('unhandledrejection', function (event) {
+        if (boot.ready || boot.failed) return;
+        var reason = event && event.reason;
+        show('Помилка під час завантаження гри',
+          reason && reason.message ? reason.message : String(reason),
+          ['Оновіть сторінку. Якщо помилка повторюється — перевірте інтернет-з’єднання.']);
+      });
+
+      boot.onScriptError = function () {
+        if (boot.failed) return;
+        show('Не вдалося завантажити game.js',
+          'Файл game.js не знайдено або сервер віддав його з неправильним типом.',
+          ['Покладіть index.html, style.css і game.js в одну папку.',
+           'Назви файлів мають збігатися точно, малими літерами.',
+           'Відкривайте гру через https://, а не як локальний файл.']);
+      };
+
+      // Сторож завантаження: якщо за 60 с не завантажився game.js або (після «Полювати») світ —
+      // показати пояснення. game.js вимикає сторожа, коли меню готове, і вмикає знову після «Полювати».
+      boot.arm = function () {
+        clearTimeout(watchdog);
+        watchdog = setTimeout(function () {
+          if (boot.ready || boot.failed) return;
+          boot.timeoutShown = true;
+          show('Гра завантажується занадто довго',
+            'Не вдалося за 60 секунд завантажити файли гри й бібліотеку Three.js або побудувати світ.',
+            ['Перевірте інтернет-з’єднання (потрібен доступ до cdn.jsdelivr.net або unpkg.com).',
+             'Вимкніть блокувальник реклами чи VPN для цього сайту.',
+             'Закрийте інші вкладки або оберіть у «Налаштуваннях» профіль «Низький» і спробуйте ще раз.']);
+          boot.failed = false;
+        }, 60000);
+      };
+      boot.disarm = function () {
+        clearTimeout(watchdog);
+      };
+      boot.arm();
+
+      // Поки завантажується game.js (≈1,6 МБ), кнопки меню ще не мають обробників, а «Полювати»
+      // вимкнена. Щоб це не виглядало як кнопки без реакції, показуємо індикатор завантаження.
+      setTimeout(function () {
+        if (boot.menuReady || boot.failed) return;
+        var loading = document.getElementById('loading');
+        var text = document.getElementById('loading-text');
+        if (!loading || !text) return;
+        text.textContent = 'Завантаження гри…';
+        loading.classList.remove('hidden');
+      }, 400);
+
+      // Модуль гри виконується до події load. Якщо через 1,5 с після неї меню так і не запустилося, а помилку
+      // ніхто не показав (скрипт заблоковано, не виконався), пояснюємо це замість «мертвих» кнопок.
+      // Готовність визначаємо й за активною кнопкою «Полювати» — так перевірка не хибить і зі старішим game.js.
+      // Повідомлення не остаточне: якщо гра все ж запуститься, вона сама його сховає.
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          var start = document.getElementById('btn-start');
+          if (boot.menuReady || (start && !start.disabled) || boot.failed || boot.timeoutShown) return;
+          if (!('noModule' in document.createElement('script'))) return;   // для старих браузерів є повідомлення nomodule
+          show('Гра не запустилася',
+            'Сторінку завантажено, але код гри (game.js) не виконався, тому кнопки меню не працюють.',
+            ['Відкрийте гру за посиланням https:// у Safari або Chrome (не як файл і не в попередньому перегляді).',
+             'Вимкніть блокувальники вмісту для цього сайту та оновіть сторінку.',
+             'Переконайтеся, що game.js скопійовано повністю.']);
+          boot.failed = false;
+          boot.timeoutShown = true;
+        }, 1500);
+      });
+    })();
+  </script>
+
+  <script type="module" src="game.js?v=10" onerror="window.WH_BOOT &amp;&amp; window.WH_BOOT.onScriptError()"></script>
+</body>
+</html>
