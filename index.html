@@ -1,8 +1,6 @@
 <!doctype html>
 <html lang="uk">
 <head>
-  <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#17251a">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0d120f">
@@ -13,7 +11,7 @@
   <!-- JavaScript працює → клас js ховає вікно #nojs-screen (воно лишається видимим лише там, де скрипти не виконуються). -->
   <script>document.documentElement.classList.add('js');</script>
   <title>WILD HUNT — Realistic Hunter</title>
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=15">
   <!-- Three.js r170 і його додатки (GLTFLoader для готових GLB-моделей) з CDN jsDelivr -->
   <script type="importmap">
     {
@@ -110,6 +108,18 @@
           <line x1="0" y1="-60" x2="0" y2="60" class="hair"/>
           <g class="mils"><circle cx="-50" cy="0" r="1.1"/><circle cx="0" cy="-50" r="1.1"/><circle cx="-40" cy="0" r="1.1"/><circle cx="0" cy="-40" r="1.1"/><circle cx="-30" cy="0" r="1.1"/><circle cx="0" cy="-30" r="1.1"/><circle cx="-20" cy="0" r="1.1"/><circle cx="0" cy="-20" r="1.1"/><circle cx="-10" cy="0" r="1.1"/><circle cx="0" cy="-10" r="1.1"/><circle cx="10" cy="0" r="1.1"/><circle cx="0" cy="10" r="1.1"/><circle cx="20" cy="0" r="1.1"/><circle cx="0" cy="20" r="1.1"/><circle cx="30" cy="0" r="1.1"/><circle cx="0" cy="30" r="1.1"/><circle cx="40" cy="0" r="1.1"/><circle cx="0" cy="40" r="1.1"/><circle cx="50" cy="0" r="1.1"/><circle cx="0" cy="50" r="1.1"/></g>
         </g>
+        <!-- Арбалет (3×): перехрестя (30 м) і лінії на 20, 40, 50 м; висоту ліній гра рахує з траєкторії болта (≈110 м/с) -->
+        <g class="ret ret-xbow">
+          <line x1="-100" y1="0" x2="-22" y2="0" class="thick"/>
+          <line x1="22" y1="0" x2="100" y2="0" class="thick"/>
+          <line x1="0" y1="60" x2="0" y2="100" class="thick"/>
+          <line x1="0" y1="-100" x2="0" y2="-22" class="thick"/>
+          <line x1="-22" y1="0" x2="22" y2="0" class="hair"/>
+          <line x1="0" y1="-22" x2="0" y2="60" class="hair"/>
+          <line x1="-9" y1="-2.6" x2="9" y2="-2.6" class="hair xl" data-d="20"/>
+          <line x1="-8" y1="2.6" x2="8" y2="2.6" class="hair xl" data-d="40"/>
+          <line x1="-7" y1="5.3" x2="7" y2="5.3" class="hair xl" data-d="50"/>
+        </g>
         <circle cx="0" cy="0" r="0.9" class="dot"/>
       </svg>
       <div id="scope-zoom">4×</div>
@@ -199,13 +209,38 @@
           <span>Набої</span>
         </button>
         <button id="btn-weapon" class="act-btn act-small" type="button" aria-label="Інша зброя" data-slot="rifle">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ico-rifle" d="M2.5 13.2h13l1.4-1.6h4.6v1.8l-4 .8-1.2 3.2h-2.6l-.4-2.4H8.6l-2 3H3.4l1.4-3.4H2.5z M8 10.6h6"/><path class="ico-shotgun" d="M2 12.4h14.5l1.3-1h3.7v2.2l-3.6.6-1.6 3.6h-2.6l.1-3H8.2l-2.4 3.1H2.8l1.6-3.3H2z"/><path class="ico-knife" d="M3 15.5l10.5-6.2c2.6-1.4 5.5-1.3 7.4-.6-2.1 2.9-5.2 4.6-8.4 5.6L5 17z M12.6 14.2l1.6 2.2-1.9 1.3-1.6-2.2"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ico-rifle" d="M2.5 13.2h13l1.4-1.6h4.6v1.8l-4 .8-1.2 3.2h-2.6l-.4-2.4H8.6l-2 3H3.4l1.4-3.4H2.5z M8 10.6h6"/><path class="ico-shotgun" d="M2 12.4h14.5l1.3-1h3.7v2.2l-3.6.6-1.6 3.6h-2.6l.1-3H8.2l-2.4 3.1H2.8l1.6-3.3H2z"/><path class="ico-knife" d="M3 15.5l10.5-6.2c2.6-1.4 5.5-1.3 7.4-.6-2.1 2.9-5.2 4.6-8.4 5.6L5 17z M12.6 14.2l1.6 2.2-1.9 1.3-1.6-2.2"/><path class="ico-pistol" d="M4 8.2h15.5v3.3H11.6l-.3 1.6c-.1.9-.8 1.5-1.7 1.5H9.2l-.9 4.2H4.6l1.6-6.3H4z M11.6 11.5c.2 1.6 1.1 2.4 2.4 2.4"/><path class="ico-bow" d="M8 3c5.5 3 5.5 15 0 18 M8 3v18 M5.5 12h15 M18.4 10.2l2.4 1.8-2.4 1.8 M6.5 10.8l-1.6 1.2 1.6 1.2"/><path class="ico-crossbow" d="M3 13.2h11.5 M14.5 13.2h6.5 M18.4 11.4l2.6 1.8-2.6 1.8 M13 6c2.6 2.2 2.6 12.2 0 14.4 M13 6l-3.6 7.2L13 20.4 M3 13.2l1.6 3.6h3l1.4-3.6"/></svg>
           <span id="weapon-text">Гвинтівка</span>
         </button>
       </div>
 
-      <div id="key-hints">ЛКМ / Пробіл — постріл · ПКМ / Q — приціл · Z — кратність · R — перезарядка · 1 / 2 / 3, X, коліщатко — зброя · T — огляд зброї · Shift — біг · C — присід · B — бінокль · E — дія · M — карта · Esc — пауза</div>
+      <!-- Селище: кнопка «ВЗАЄМОДІЯ» (над кнопками дій, не перекриває джойстик і стрільбу) -->
+      <button id="interact-pill" class="hidden" type="button" aria-label="Взаємодія">
+        <span id="interact-key" class="ip-key" aria-hidden="true">E</span>
+        <span class="ip-text"><b>ВЗАЄМОДІЯ</b><span id="interact-title" class="ip-title"></span><small id="interact-sub"></small></span>
+      </button>
+      <div id="test-panel" class="hidden" role="status" aria-live="polite"></div>
+
+      <!-- Керування машиною (позашляховик, квадроцикл) -->
+      <div id="drive-hud" aria-hidden="true">
+        <div id="drive-panel" class="panel">
+          <div class="drive-speed"><b id="drive-speed">0</b><span>км/год</span><i id="drive-gear">N</i></div>
+          <div class="meter" id="drive-fuel"><span class="meter-label">Пальне</span><div class="bar"><div id="drive-fuel-fill"></div></div></div>
+          <div class="meter" id="drive-cond"><span class="meter-label">Стан</span><div class="bar"><div id="drive-cond-fill"></div></div></div>
+        </div>
+        <div id="drive-actions">
+          <button id="btn-gas" class="act-btn drive-pedal" type="button" aria-label="Газ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l1 17H7z M9.5 7h5 M9.5 11h5 M9.5 15h5"/></svg><span>Газ</span></button>
+          <button id="btn-brake" class="act-btn drive-pedal" type="button" aria-label="Гальмо або задній хід"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16v9H4z M7 11h10 M7 14h10"/></svg><span>Гальмо</span></button>
+          <button id="btn-hand" class="act-btn act-small" type="button" aria-label="Ручне гальмо"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 7.5v6 M12 16.2v.3"/></svg><span>Ручне</span></button>
+          <button id="btn-cam" class="act-btn act-small" type="button" aria-label="Камера"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h4l2-2.5h6L17 8h4v11H3z"/><circle cx="12" cy="13" r="3.4"/></svg><span>Камера</span></button>
+          <button id="btn-exit" class="act-btn act-small" type="button" aria-label="Вийти з машини"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5 M14 8l4 4-4 4 M8.5 12H18"/></svg><span>Вийти</span></button>
+        </div>
+      </div>
+
+      <div id="key-hints">ЛКМ / Пробіл — постріл · ПКМ / Q — приціл · Z — кратність · R — перезарядка · 1–6, X, коліщатко — зброя · T — огляд зброї · Shift — біг · C — присід · B — бінокль · E — дія / ВЗАЄМОДІЯ · M — карта · Esc — пауза</div>
+      <div id="key-hints-drive">W / S — газ і гальмо (задній хід) · A / D — кермо · Пробіл — ручне гальмо · C — камера · F — взаємодія · E — вийти · M — карта · Esc — пауза</div>
     </div>
+    <div id="sleep-fade" aria-hidden="true"></div>
 
     <!-- Головне меню -->
     <div id="start-screen" class="overlay">
@@ -224,9 +259,14 @@
         </header>
 
         <nav class="menu-nav" aria-label="Головне меню">
+          <!-- «Продовжити»: з'являється, коли є збереження (кнопка «Зберегти прогрес» у паузі чи в Домі мисливця) -->
+          <button id="btn-continue" class="primary btn-continue hidden" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+            <span class="continue-text"><span class="continue-title">Продовжити</span><span id="continue-meta" class="continue-meta"></span></span>
+          </button>
           <button id="btn-start" class="primary btn-hunt" type="button" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 2.5v5 M12 16.5v5 M2.5 12h5 M16.5 12h5"/></svg>
-            <span>Полювати</span>
+            <span id="btn-start-label">Полювати</span>
           </button>
           <!-- Індикатор завантаження світу: з'являється після натискання «Полювати» -->
           <div id="loading" class="hidden" role="status" aria-live="polite">
@@ -257,7 +297,7 @@
           <p class="info-title" id="menu-location">Долина Чорного Потоку</p>
           <p class="info-line" id="menu-conditions">Ранок · ясно · вітер слабкий</p>
           <p class="info-line" id="menu-loadout">Карабін .243 Win · Приціл 4×32</p>
-          <p class="info-line muted" id="menu-goal">Угіддя: благородний олень, козуля, дикий кабан, бурий ведмідь.</p>
+          <p class="info-line muted" id="menu-goal">Угіддя ≈ 820 × 820 м: благородний олень, козуля, дикий кабан, бурий ведмідь, сірий вовк (зграя), руда лисиця, заєць-русак.</p>
         </aside>
 
         <footer class="menu-help">
@@ -287,6 +327,11 @@
         <h2>Пауза</h2>
         <p id="pause-stats" class="stats"></p>
         <button id="btn-resume" class="primary" type="button">Продовжити</button>
+        <button id="btn-save" class="secondary btn-save" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h11.5l3 3V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V6A1.5 1.5 0 0 1 6 4.5z M8 4.5v5h7v-5 M7.5 20.5v-6h9v6"/></svg>
+          <span id="btn-save-label">Зберегти прогрес</span>
+        </button>
+        <p id="pause-save-note" class="save-note" aria-live="polite"></p>
         <div class="menu-row menu-row-top">
           <button id="btn-pause-map" class="secondary" type="button">Карта</button>
           <button id="btn-pause-settings" class="secondary" type="button">Налаштування</button>
@@ -460,13 +505,6 @@
     })();
   </script>
 
-  <script type="module" src="game.js?v=10" onerror="window.WH_BOOT &amp;&amp; window.WH_BOOT.onScriptError()"></script>
-</body><script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .catch(error => console.error('Service Worker:', error));
-  });
-}
-</script>
+  <script type="module" src="game.js?v=15" onerror="window.WH_BOOT &amp;&amp; window.WH_BOOT.onScriptError()"></script>
+</body>
 </html>

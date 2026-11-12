@@ -593,13 +593,19 @@ svg line {
 /* Значок кнопки зброї — те, що зараз у руках. */
 #btn-weapon .ico-rifle,
 #btn-weapon .ico-shotgun,
-#btn-weapon .ico-knife {
+#btn-weapon .ico-knife,
+#btn-weapon .ico-pistol,
+#btn-weapon .ico-bow,
+#btn-weapon .ico-crossbow {
   display: none;
 }
 
 #btn-weapon[data-slot="rifle"] .ico-rifle,
 #btn-weapon[data-slot="shotgun"] .ico-shotgun,
-#btn-weapon[data-slot="knife"] .ico-knife {
+#btn-weapon[data-slot="knife"] .ico-knife,
+#btn-weapon[data-slot="pistol"] .ico-pistol,
+#btn-weapon[data-slot="bow"] .ico-bow,
+#btn-weapon[data-slot="crossbow"] .ico-crossbow {
   display: inline;
 }
 
@@ -695,7 +701,8 @@ body:not(.is-touch) #actions {
 #scope:not([data-ret]) .ret-duplex,
 #scope[data-ret="duplex"] .ret-duplex,
 #scope[data-ret="g4"] .ret-g4,
-#scope[data-ret="mil"] .ret-mil {
+#scope[data-ret="mil"] .ret-mil,
+#scope[data-ret="xbow"] .ret-xbow {
   display: inline;
 }
 
@@ -837,6 +844,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
 }
 
 .primary,
@@ -926,6 +934,64 @@ h1 {
 
 .nav-btn:active {
   background: rgba(30, 38, 32, 0.85);
+}
+
+/* «Продовжити» (є збереження): назва й рядок «коли й де збережено». */
+.btn-continue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: clamp(10px, 2.4vmin, 14px) 20px;
+  text-align: left;
+}
+
+.btn-continue svg {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.continue-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.continue-title {
+  font-size: clamp(17px, 3.6vmin, 21px);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.continue-meta {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  opacity: 0.82;
+  /* Не більше двох рядків (вузький телефон) — далі три крапки. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* Коли є збереження, «Полювати з селища» — другорядна кнопка під «Продовжити». */
+.btn-hunt.btn-hunt-alt {
+  border: 1px solid var(--line-strong);
+  background: rgba(12, 17, 14, 0.72);
+  color: var(--text);
+  box-shadow: none;
+  font-size: clamp(14px, 3vmin, 16px);
+  padding: clamp(9px, 2vmin, 12px) 20px;
+}
+
+.btn-hunt.btn-hunt-alt svg {
+  stroke: var(--accent);
 }
 
 #loading {
@@ -1305,7 +1371,37 @@ input[type="range"] {
 
 #btn-resume {
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+}
+
+/* Пауза: «Зберегти прогрес» і рядок про останнє збереження. */
+.btn-save {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.btn-save svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.save-note {
+  margin: 6px 2px 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.save-note.bad {
+  color: #ec8f72;
 }
 
 .menu-row {
@@ -1533,5 +1629,1188 @@ body.playing #rotate-hint {
 
   #compass-wrap {
     min-width: 100px;
+  }
+}
+
+/* ───────── HUNTER VILLAGE: кнопка «ВЗАЄМОДІЯ», служби, іспит, машина ───────── */
+
+/* Кнопка взаємодії: над кластером кнопок дій праворуч (телефон) — не над джойстиком і не над «Постріл». */
+#interact-pill {
+  position: absolute;
+  right: calc(var(--safe-r) + var(--gap));
+  bottom: calc(var(--safe-b) + var(--gap) + var(--actions) + 10px);
+  max-width: min(300px, 46vw);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 6px 8px;
+  border-radius: 26px;
+  border: 1.5px solid var(--accent);
+  background: rgba(20, 16, 8, 0.86);
+  color: var(--text);
+  pointer-events: auto;
+  touch-action: none;
+  text-align: left;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+  animation: ip-in 0.18s ease-out;
+}
+
+#interact-pill.pressed {
+  transform: scale(0.96);
+  background: var(--accent-soft);
+}
+
+@keyframes ip-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.ip-key {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #e0b257, #c48f36);
+  color: #1d160a;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+body.is-touch .ip-key {
+  font-size: 0;
+}
+
+body.is-touch .ip-key::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid #1d160a;
+}
+
+.ip-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.ip-text b {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: #ffe2a8;
+}
+
+.ip-title {
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ip-text small {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* На ПК — під перехрестям, по центру. */
+body:not(.is-touch) #interact-pill {
+  right: auto;
+  left: 50%;
+  bottom: auto;
+  top: calc(50% + 64px);
+  transform: translateX(-50%);
+  animation: none;
+}
+
+body:not(.is-touch) #interact-pill.pressed {
+  transform: translateX(-50%) scale(0.96);
+}
+
+/* У машині кнопка взаємодії — над педалями. */
+body.driving #interact-pill {
+  bottom: calc(var(--safe-b) + var(--gap) + var(--actions) + 10px);
+}
+
+#test-panel {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--safe-t) + var(--gap) + 112px);
+  transform: translateX(-50%);
+  max-width: min(92vw, 640px);
+  padding: 7px 14px;
+  border-radius: 10px;
+  background: rgba(40, 26, 8, 0.82);
+  border: 1px solid var(--accent);
+  font-size: 12.5px;
+  font-weight: 650;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Розмова й служби */
+.npc-speech {
+  display: grid;
+  gap: 6px;
+  margin: 2px 0 10px;
+  padding: 10px 14px;
+  border-radius: 12px 12px 12px 4px;
+  background: rgba(217, 167, 74, 0.1);
+  border: 1px solid rgba(217, 167, 74, 0.35);
+}
+
+.npc-who {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.npc-who b {
+  font-size: 14px;
+}
+
+.npc-who span {
+  font-size: 11.5px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.npc-speech p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.svc-btn {
+  pointer-events: auto;
+  touch-action: manipulation;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid #e7bb63;
+  background: linear-gradient(180deg, #e0b257, #c48f36);
+  color: #1d160a;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+.svc-btn.secondary {
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.svc-btn:disabled {
+  opacity: 0.4;
+}
+
+.svc-card .item-foot {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.svc-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+
+.muted-tag {
+  color: var(--muted) !important;
+}
+
+.svc-progress {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin: -2px 0 8px;
+}
+
+.svc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c48f36, #e9c46a);
+}
+
+.svc-ach {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.svc-ach .ach {
+  padding: 5px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.svc-ach .ach.on {
+  border-color: rgba(143, 196, 106, 0.6);
+  color: #cfe8b6;
+  background: rgba(143, 196, 106, 0.12);
+}
+
+/* Сон: затемнення екрана */
+#sleep-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: #040504;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+#sleep-fade.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Машина: панель приладів і педалі (замість кнопок зброї) */
+#drive-hud,
+#key-hints-drive {
+  display: none;
+}
+
+body.driving #drive-hud {
+  display: block;
+}
+
+body.driving:not(.is-touch) #key-hints-drive {
+  display: block;
+}
+
+body.driving #actions,
+body.driving #crosshair,
+body.driving #aim-label,
+body.driving #key-hints,
+body.driving #range-label {
+  display: none !important;
+}
+
+#key-hints-drive {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-b) + var(--gap));
+  transform: translateX(-50%);
+  max-width: 92vw;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(12, 17, 14, 0.45);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+
+#drive-panel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: auto minmax(90px, 140px);
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  row-gap: 4px;
+  align-items: center;
+  padding: 8px 14px;
+  bottom: calc(var(--safe-b) + var(--gap) + 52px);
+}
+
+/* Телефон: альбомна — знизу по центру між джойстиком і педалями; книжкова — над джойстиком. */
+body.is-touch #drive-panel {
+  bottom: calc(var(--safe-b) + var(--gap));
+  grid-template-columns: auto minmax(70px, 110px);
+  padding: 6px 12px;
+}
+
+@media (orientation: portrait) {
+  /* Книжкова: вузька панель ліворуч над педалями (праворуч від неї — кнопка «ВЗАЄМОДІЯ»). */
+  body.is-touch #drive-panel {
+    left: calc(var(--safe-l) + var(--gap));
+    transform: none;
+    bottom: calc(var(--safe-b) + var(--gap) + 7vh + var(--actions) + 12px);
+    grid-template-columns: minmax(96px, 128px);
+    grid-template-rows: auto auto auto;
+  }
+
+  body.is-touch .drive-speed {
+    grid-row: auto;
+  }
+}
+
+.drive-speed {
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.drive-speed b {
+  font-size: 30px;
+  min-width: 2.2ch;
+  text-align: right;
+}
+
+.drive-speed span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.drive-speed i {
+  font-style: normal;
+  font-weight: 800;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent);
+}
+
+#drive-fuel-fill,
+#drive-cond-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--stamina);
+  border-radius: inherit;
+}
+
+#drive-fuel.low #drive-fuel-fill,
+#drive-cond.low #drive-cond-fill {
+  background: var(--danger);
+}
+
+#drive-actions {
+  position: absolute;
+  right: calc(var(--safe-r) + var(--gap));
+  bottom: calc(var(--safe-b) + var(--gap));
+  width: var(--actions);
+  height: var(--actions);
+}
+
+body:not(.is-touch) #drive-actions {
+  display: none;
+}
+
+.drive-pedal {
+  border-radius: 18px !important;
+}
+
+#btn-gas { left: 80%; top: 70%; width: 36%; height: 52%; background: rgba(30, 60, 22, 0.6); border-color: rgba(150, 210, 120, 0.6); }
+#btn-brake { left: 42%; top: 76%; width: 34%; height: 40%; background: rgba(60, 22, 14, 0.55); border-color: rgba(230, 140, 110, 0.6); }
+#btn-hand { left: 30%; top: 30%; width: 24%; height: 24%; }
+#btn-cam { left: 58%; top: 22%; width: 22%; height: 22%; }
+#btn-exit { left: 86%; top: 18%; width: 24%; height: 24%; }
+
+@media (orientation: portrait) {
+  #interact-pill,
+  body.driving #interact-pill {
+    bottom: calc(var(--safe-b) + var(--gap) + 7vh + var(--actions) + 10px);
+  }
+
+  #drive-actions {
+    bottom: calc(var(--safe-b) + var(--gap) + 7vh);
+  }
+}
+
+@media (max-height: 420px) {
+  #test-panel {
+    top: calc(var(--safe-t) + var(--gap) + 96px);
+    font-size: 11.5px;
+  }
+}
+
+/* ───────── Каталог магазину й інвентар ───────── */
+
+/* Каталог: широка панель постійної висоти (не «стрибає» між вкладками) і непрозора — меню під нею не
+   просвічує. */
+.sheet.sheet-wide {
+  width: min(1120px, 100%);
+  height: 100%;
+  max-height: min(100%, 900px);
+  background: #0c110e;
+}
+
+.catalog {
+  display: grid;
+  gap: 12px;
+}
+
+/* Вкладки категорій: горизонтальна стрічка, що прокручується пальцем; лишається вгорі. */
+.cat-tabs {
+  position: sticky;
+  top: -12px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  margin: -2px -18px 0;
+  padding: 4px 18px 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  scrollbar-width: none;
+  background: linear-gradient(180deg, rgba(12, 17, 14, 0.97) 75%, rgba(12, 17, 14, 0));
+}
+
+.cat-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  pointer-events: auto;
+  touch-action: manipulation;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.cat-tab.active {
+  background: var(--accent);
+  border-color: #e7bb63;
+  color: #1d160a;
+}
+
+.cat-count {
+  min-width: 18px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-tab.active .cat-count {
+  background: rgba(29, 22, 10, 0.18);
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(236px, 40vw), 1fr));
+  gap: 12px;
+}
+
+.cat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #1b221d, #141a16);
+  color: var(--text);
+  text-align: left;
+  overflow: hidden;
+  pointer-events: auto;
+  touch-action: manipulation;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.cat-card:active {
+  transform: scale(0.985);
+}
+
+.cat-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .cat-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
+  }
+
+  .cat-card:hover .cat-media img {
+    transform: scale(1.035);
+  }
+}
+
+.cat-card.is-equipped {
+  border-color: rgba(217, 167, 74, 0.65);
+}
+
+/* Тло зображення — та сама «студія», що й у 3D-перегляді (знімки мають прозоре тло). */
+.cat-media,
+.cat-d-media {
+  background:
+    radial-gradient(120% 95% at 50% 30%, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 60%),
+    radial-gradient(140% 120% at 50% 110%, #0d110e 0%, #1a201c 55%, #262d27 100%);
+}
+
+.cat-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.cat-media img {
+  width: 100%;
+  height: 100%;
+  padding: 5% 4%;
+  object-fit: contain;
+  transition: transform 0.25s;
+  -webkit-user-drag: none;
+}
+
+.cat-media.no-img img,
+.cat-d-stage.no-img img {
+  display: none;
+}
+
+.cat-media.no-img::after,
+.cat-d-stage.no-img::after {
+  content: 'Зображення недоступне';
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cat-d-stage.no-img::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.cat-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.cat-badge.equipped {
+  background: var(--accent);
+  color: #1d160a;
+}
+
+.cat-badge.owned {
+  background: rgba(143, 196, 106, 0.2);
+  border: 1px solid rgba(143, 196, 106, 0.45);
+  color: #d4ecc3;
+}
+
+.cat-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 12px;
+}
+
+.cat-name {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.cat-sub {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.cat-foot {
+  margin-top: auto;
+  padding-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cat-price {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-price.short {
+  color: #cdb08f;
+}
+
+.cat-state {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--good);
+}
+
+.cat-more {
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.cat-note {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ── Картка предмета: велике зображення / 3D ліворуч (або зверху), відомості праворуч ── */
+
+.cat-detail {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--safe-t) + 10px) calc(var(--safe-r) + 10px) calc(var(--safe-b) + 10px) calc(var(--safe-l) + 10px);
+  background: rgba(4, 6, 5, 0.62);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+
+.cat-detail.open {
+  opacity: 1;
+}
+
+.cat-detail-sheet {
+  width: min(1080px, 100%);
+  height: min(700px, 100%);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #0f1410;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
+  transform: translateY(10px) scale(0.985);
+  transition: transform 0.2s;
+}
+
+.cat-detail.open .cat-detail-sheet {
+  transform: none;
+}
+
+.cat-d-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px 7px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cat-back {
+  flex: 0 0 auto;
+}
+
+.cat-d-crumb {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-d-money {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-d-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.cat-d-media {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--line);
+}
+
+.cat-d-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.cat-d-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 4%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+}
+
+.cat-d-3d {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.cat-d-stage.is-3d img {
+  display: none;
+}
+
+.cat-d-stage.is-3d .cat-d-3d {
+  display: block;
+}
+
+.cat-viewer-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.cat-viewer-canvas:active {
+  cursor: grabbing;
+}
+
+.cat-spin {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  font-size: 12.5px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.cat-spin::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.14);
+  border-top-color: var(--accent);
+  animation: cat-spin 0.8s linear infinite;
+}
+
+.cat-d-stage.loading .cat-spin,
+.cat-d-stage.fail .cat-spin {
+  display: flex;
+}
+
+.cat-d-stage.fail .cat-spin {
+  color: #e2b8a2;
+}
+
+.cat-d-stage.fail .cat-spin::before {
+  display: none;
+}
+
+@keyframes cat-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cat-d-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 10px;
+}
+
+.cat-seg {
+  display: inline-grid;
+  grid-auto-flow: column;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+}
+
+.cat-seg-b {
+  padding: 8px 13px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 650;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.cat-seg-b.on {
+  background: var(--accent-soft);
+  color: #ffe2a8;
+}
+
+.cat-chip {
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.cat-chip.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: #ffe2a8;
+}
+
+.cat-d-hint {
+  display: none;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cat-d-media.mode-3d .cat-d-hint {
+  display: inline;
+}
+
+.cat-d-info {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.cat-d-name {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 24px;
+  line-height: 1.15;
+  letter-spacing: 0.03em;
+}
+
+.cat-d-price {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cat-d-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-d-cost .coin {
+  width: 18px;
+  height: 18px;
+}
+
+.cat-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cat-pill.equipped {
+  background: var(--accent);
+  color: #1d160a;
+}
+
+.cat-pill.owned {
+  background: rgba(143, 196, 106, 0.18);
+  border: 1px solid rgba(143, 196, 106, 0.45);
+  color: #d4ecc3;
+}
+
+.cat-d-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d9d4c6;
+}
+
+.cat-d-game {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-d-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cat-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.cat-stats {
+  display: grid;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.cat-stat {
+  display: grid;
+  grid-template-columns: minmax(104px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.cat-stat.has-bar {
+  grid-template-columns: minmax(104px, 1fr) minmax(64px, 1fr) minmax(64px, auto);
+}
+
+.cat-stat-l {
+  color: var(--muted);
+}
+
+.cat-stat-v {
+  font-weight: 650;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cat-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #b8893a, #e8c272);
+  transform-origin: left center;
+}
+
+.cat-bar.inv i {
+  background: linear-gradient(90deg, #8fa86a, #d98c3f);
+}
+
+.cat-d-note {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.cat-d-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  background: rgba(8, 11, 9, 0.92);
+}
+
+.cat-d-actions .primary,
+.cat-d-actions .secondary {
+  padding: 12px 22px;
+  font-size: 14.5px;
+}
+
+.cat-buy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.cat-buy.confirm {
+  box-shadow: 0 0 0 3px rgba(233, 196, 111, 0.4);
+}
+
+.cat-equip.done:disabled {
+  opacity: 1;
+  border-color: rgba(143, 196, 106, 0.55);
+  background: rgba(143, 196, 106, 0.18);
+  color: #d6f0c4;
+  box-shadow: none;
+}
+
+.cat-d-actions .secondary:disabled {
+  opacity: 0.45;
+}
+
+.cat-d-msg {
+  flex: 1 1 200px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+
+.cat-d-msg.flash {
+  color: #ffe2a8;
+}
+
+/* Телефон у портреті й вузькі вікна: зображення зверху, відомості під ним, кнопки внизу. */
+@media (max-width: 760px) {
+  .cat-detail {
+    padding: calc(var(--safe-t) + 6px) calc(var(--safe-r) + 6px) calc(var(--safe-b) + 6px) calc(var(--safe-l) + 6px);
+  }
+
+  .cat-detail-sheet {
+    height: 100%;
+  }
+
+  .cat-d-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(200px, 42%) minmax(0, 1fr);
+  }
+
+  .cat-d-media {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cat-d-name {
+    font-size: 21px;
+  }
+
+  .cat-d-actions .primary {
+    flex: 2 1 170px;
+    white-space: nowrap;
+  }
+
+  .cat-d-actions .secondary {
+    flex: 1 1 110px;
+  }
+
+  .cat-more {
+    display: none;
+  }
+}
+
+/* Телефон у ландшафті (низький екран): усе компактніше, зображення ліворуч на всю висоту. */
+@media (max-height: 460px) and (orientation: landscape) {
+  .cat-detail {
+    padding: calc(var(--safe-t) + 4px) calc(var(--safe-r) + 8px) calc(var(--safe-b) + 4px) calc(var(--safe-l) + 8px);
+  }
+
+  .cat-detail-sheet {
+    height: 100%;
+    border-radius: 12px;
+  }
+
+  .cat-d-head {
+    padding: 2px 10px 2px 4px;
+  }
+
+  .cat-d-head .icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cat-d-info {
+    padding: 10px 14px 12px;
+    gap: 8px;
+  }
+
+  .cat-d-name {
+    font-size: 19px;
+  }
+
+  .cat-d-tools {
+    padding: 4px 10px 6px;
+  }
+
+  .cat-d-hint {
+    font-size: 10px;
+  }
+
+  .cat-d-actions {
+    padding: 6px 10px;
+  }
+
+  .cat-d-actions .primary,
+  .cat-d-actions .secondary {
+    padding: 9px 16px;
+    font-size: 13.5px;
+  }
+
+  .cat-d-msg {
+    flex-basis: 120px;
+  }
+
+  .cat-grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
+  }
+
+  .cat-info {
+    padding: 8px 10px 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .cat-grid {
+    gap: 8px;
+  }
+
+  .cat-name {
+    font-size: 13px;
+  }
+
+  .cat-more {
+    display: none;
   }
 }

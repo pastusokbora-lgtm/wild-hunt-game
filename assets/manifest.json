@@ -1,0 +1,278 @@
+{
+  "version": 1,
+  "about": "Зовнішні 3D-моделі (GLB/GLTF) і текстури. Поки \"enabled\": false — гра використовує власні процедурні моделі й текстури. Щоб підключити файл: покладіть його за вказаним шляхом і змініть \"enabled\" на true. Опис полів — assets/models/README.md, assets/textures/README.md і assets/sounds/README.md.",
+  "models": {
+    "deer": {
+      "enabled": false,
+      "url": "assets/models/animals/deer.glb",
+      "fitHeight": 2.4,
+      "rotationY": 0,
+      "animations": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "run": "Gallop",
+        "feed": "Eating",
+        "death": "Death"
+      }
+    },
+    "roe": {
+      "enabled": false,
+      "url": "assets/models/animals/roe.glb",
+      "fitHeight": 1.3,
+      "rotationY": 0,
+      "animations": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "run": "Gallop",
+        "feed": "Eating",
+        "death": "Death"
+      }
+    },
+    "boar": {
+      "enabled": false,
+      "url": "assets/models/animals/boar.glb",
+      "fitHeight": 1.05,
+      "rotationY": 0,
+      "animations": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "run": "Run",
+        "feed": "Eating",
+        "death": "Death"
+      }
+    },
+    "bear": {
+      "enabled": false,
+      "url": "assets/models/animals/bear.glb",
+      "fitHeight": 1.5,
+      "rotationY": 0,
+      "animations": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "run": "Run",
+        "feed": "Eating",
+        "death": "Death"
+      }
+    },
+    "rifle": {
+      "enabled": false,
+      "url": "assets/models/weapons/rifle.glb",
+      "scale": 1,
+      "rotationY": 0,
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "shotgun": {
+      "enabled": false,
+      "url": "assets/models/weapons/shotgun.glb",
+      "scale": 1,
+      "rotationY": 0,
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "knife": {
+      "enabled": false,
+      "url": "assets/models/weapons/knife.glb",
+      "scale": 1,
+      "rotationY": 0,
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "lodge": {
+      "enabled": false,
+      "url": "assets/models/buildings/lodge.glb",
+      "fitHeight": 5.6,
+      "rotationY": 0
+    },
+    "tower": {
+      "enabled": false,
+      "url": "assets/models/buildings/tower.glb",
+      "fitHeight": 6.3,
+      "rotationY": 0
+    },
+    "vehicle": {
+      "enabled": false,
+      "url": "assets/models/buildings/vehicle.glb",
+      "fitHeight": 1.9,
+      "rotationY": 0
+    },
+    "tree_spruce": {
+      "enabled": false,
+      "url": "assets/models/vegetation/spruce.glb",
+      "fitHeight": 16
+    },
+    "tree_pine": {
+      "enabled": false,
+      "url": "assets/models/vegetation/pine.glb",
+      "fitHeight": 18
+    },
+    "tree_oak": {
+      "enabled": false,
+      "url": "assets/models/vegetation/oak.glb",
+      "fitHeight": 14
+    },
+    "tree_birch": {
+      "enabled": false,
+      "url": "assets/models/vegetation/birch.glb",
+      "fitHeight": 15
+    },
+    "rock": {
+      "enabled": false,
+      "url": "assets/models/vegetation/rock.glb",
+      "fitHeight": 1.2
+    },
+    "bush": {
+      "enabled": false,
+      "url": "assets/models/vegetation/bush.glb",
+      "fitHeight": 1.4
+    },
+    "fern": {
+      "enabled": false,
+      "url": "assets/models/vegetation/fern.glb",
+      "fitHeight": 0.8
+    }
+  },
+  "textures": {
+    "ground_grass": {
+      "enabled": false,
+      "albedo": "assets/textures/ground/grass_albedo.jpg",
+      "normal": "assets/textures/ground/grass_normal_gl.jpg"
+    },
+    "ground_forest": {
+      "enabled": false,
+      "albedo": "assets/textures/ground/forest_albedo.jpg",
+      "normal": "assets/textures/ground/forest_normal_gl.jpg"
+    },
+    "ground_dirt": {
+      "enabled": false,
+      "albedo": "assets/textures/ground/dirt_albedo.jpg",
+      "normal": "assets/textures/ground/dirt_normal_gl.jpg"
+    },
+    "ground_rock": {
+      "enabled": false,
+      "albedo": "assets/textures/ground/rock_albedo.jpg",
+      "normal": "assets/textures/ground/rock_normal_gl.jpg"
+    },
+    "bark": {
+      "enabled": false,
+      "albedo": "assets/textures/bark/bark_albedo.jpg",
+      "normal": "assets/textures/bark/bark_normal_gl.jpg"
+    },
+    "rock": {
+      "enabled": false,
+      "albedo": "assets/textures/rock/rock_albedo.jpg",
+      "normal": "assets/textures/rock/rock_normal_gl.jpg"
+    }
+  },
+  "sounds": {
+    "shot_r243": {
+      "enabled": false,
+      "url": "assets/sounds/shot-243.mp3",
+      "gain": 1
+    },
+    "shot_r308": {
+      "enabled": false,
+      "url": "assets/sounds/shot-308.mp3",
+      "gain": 1
+    },
+    "shot_r338": {
+      "enabled": false,
+      "url": "assets/sounds/shot-338.mp3",
+      "gain": 1
+    },
+    "shot_g12": {
+      "enabled": false,
+      "url": "assets/sounds/shot-g12.mp3",
+      "gain": 1
+    },
+    "bolt_up": {
+      "enabled": false,
+      "url": "assets/sounds/bolt-up.mp3"
+    },
+    "bolt_back": {
+      "enabled": false,
+      "url": "assets/sounds/bolt-back.mp3"
+    },
+    "bolt_forward": {
+      "enabled": false,
+      "url": "assets/sounds/bolt-forward.mp3"
+    },
+    "bolt_down": {
+      "enabled": false,
+      "url": "assets/sounds/bolt-down.mp3"
+    },
+    "casing_eject": {
+      "enabled": false,
+      "url": "assets/sounds/casing-eject.mp3"
+    },
+    "casing_hard": {
+      "enabled": false,
+      "url": "assets/sounds/casing-hard.mp3"
+    },
+    "casing_soft": {
+      "enabled": false,
+      "url": "assets/sounds/casing-soft.mp3"
+    },
+    "round_in": {
+      "enabled": false,
+      "url": "assets/sounds/round-in.mp3"
+    },
+    "dry_fire": {
+      "enabled": false,
+      "url": "assets/sounds/dry-fire.mp3"
+    },
+    "mag_out": {
+      "enabled": false,
+      "url": "assets/sounds/mag-out.mp3"
+    },
+    "mag_in": {
+      "enabled": false,
+      "url": "assets/sounds/mag-in.mp3"
+    },
+    "sg_lever": {
+      "enabled": false,
+      "url": "assets/sounds/sg-lever.mp3"
+    },
+    "sg_open": {
+      "enabled": false,
+      "url": "assets/sounds/sg-open.mp3"
+    },
+    "sg_close": {
+      "enabled": false,
+      "url": "assets/sounds/sg-close.mp3"
+    },
+    "sg_eject": {
+      "enabled": false,
+      "url": "assets/sounds/sg-eject.mp3"
+    },
+    "shell_in": {
+      "enabled": false,
+      "url": "assets/sounds/shell-in.mp3"
+    },
+    "knife_swing": {
+      "enabled": false,
+      "url": "assets/sounds/knife-swing.mp3"
+    },
+    "knife_hit": {
+      "enabled": false,
+      "url": "assets/sounds/knife-hit.mp3"
+    },
+    "knife_draw": {
+      "enabled": false,
+      "url": "assets/sounds/knife-draw.mp3"
+    },
+    "weapon_draw": {
+      "enabled": false,
+      "url": "assets/sounds/weapon-draw.mp3"
+    }
+  }
+}
